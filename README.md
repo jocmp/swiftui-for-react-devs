@@ -1,82 +1,70 @@
-============================
-SwiftUI for React Developers
-============================
-This is a cheat sheet that helps you React developers to quickly start with SwiftUI.
+# SwiftUI for React Developers
 
-.. note:: I assume that you are familiar with React Hooks. For the transformation from **Class Components** to **Hooks**, I highly recommend you to visit `Thinking in React Hooks`_, which is a great visualized explanation.
+This is a cheat sheet to help React developers get started with SwiftUI.
 
-.. contents:: :local:
-
-Basics
-======
+## Basics
 
 Building the Contents
----------------------
-One of the core parts of these declarative UI frameworks is its DSL syntax,
-both of them do provide the special inline syntax for building the content.
-For React, that calls JSX and need to be transpiled by **Babel (with plugins)**
-or **tsc**. For SwiftUI, it's a built-in syntax in Swift 5.1 called
-**Function Builders**.
+
+One common part of these declarative UI frameworks is a DSL syntax.
+Both React and SwiftUI provide a special inline syntax for building markup content.
+React uses a syntax called [JSX](https://react.dev/learn/writing-markup-with-jsx) that's compiled to browser-compatible JavaScript. SwiftUI in contrast is compiled and utilizes directives and decorators like `@main` to work.
+
+### Function Builders
 
 In React:
 
-.. code-block:: javascript
+```javascript
+function Hello() {
+  return (
+    <div>
+      <p>Hello</p>
+      <p>React is awesome!</p>
+    </div>
+  );
+}
+```
 
-  const Hello = () => {
-    return (
-      <div>
-        <p>Hello</p>
-        <p>React is awesome!</p>
-      </div>
-    );
-  };
-  
 In SwiftUI:
 
-.. code-block:: swift
+```swift
+struct Hello: View {
+    var body: some View {
+        VStack {
+            Text("Hello")
+            Text("SwiftUI is awesome!")
+        }
+    }
+}
+```
 
-  struct Hello: View {
-      var body: some View {
-          VStack {
-              Text("Hello")
-              Text("SwiftUI is awesome!")
-          }
-      }
-  }
 
-As you can see, Swift's syntax feels more natural and JSX seems to be more exotic.
-Actually, Web developers should be more familiar with JSX, after all, it's just
-like HTML.
+### Props
 
-Props
------
-Most of components render different contents depend on what input is given to it.
-That is what props comes to play.
+In both React and SwiftUI, components are rendered and rerendered if their properties change.
 
 In React:
 
-.. code-block:: javascript
-
-  const Hello = ({name}) => {
-    return <p>Hello, {name}!</p>;
-  };
+```javascript
+function Hello({ name }) {
+  return <p>Hello, {name}!</p>;
+}
+```
 
 In SwiftUI:
 
-.. code-block:: swift
+```swift
+struct Hello: View {
+    let name: String
 
-  struct Hello: View {
-      let name: String
-      
-      var body: some View {
-          Text("Hello, \(name)!")
-      }
-  }
+    var body: some View {
+        Text("Hello, \(name)!")
+    }
+}
+```
 
-Almost the same in semantic!
+### Conditionals and Lists
 
-Conditional & List
-------------------
 Structure of the contents can be dynamic, the most common patterns are conditional
 and list.
 
@@ -88,7 +76,7 @@ In React:
     if (!users.length) {
       return <p>No users</p>;
     }
-    
+
     return (
       <ul>
         {users.map(e => (
@@ -104,7 +92,7 @@ In SwiftUI:
 
   struct UserList: View {
       let users: [User]
-      
+
       var body: some View {
           Group {
               if users.isEmpty {
@@ -193,15 +181,15 @@ In SwiftUI:
 
   struct Counter: View {
       let initialValue: Int
-      
+
       @State
       var counter: Int
-      
+
       init(initialValue: Int) {
           self.initialValue = initialValue
           _counter = State(initialValue: initialValue)
       }
-      
+
       var body: some View {
           VStack {
               Text("\(counter)")
@@ -257,7 +245,7 @@ In SwiftUI:
   struct Hello: View {
       let greeting: String
       let name: String
-      
+
       var body: some View {
           Text("\(greeting), \(name)!")
               .onChange(of: name) { name in
@@ -346,10 +334,10 @@ In SwiftUI:
       private class Refs: ObservableObject {
           var timer: Timer?
       }
-      
+
       @StateObject
       private var refs = Refs()
-      
+
       var body: some View {
           Text("Hello")
               .onAppear {
@@ -372,7 +360,7 @@ And we've got two approaches:
   struct Hello: View {
       @State
       private var timer: Timer? = nil
-      
+
       var body: some View {
           Text("Hello")
               .onAppear {
@@ -424,13 +412,13 @@ First, let's bridge an existed ``UIView`` to SwiftUI:
   struct MapView: UIViewRepresentable {
       let mapType: MKMapType
       let ref: RefBox<MKMapView>
-      
+
       typealias UIViewType = MKMapView
-      
+
       func makeUIView(context: Context) -> MKMapView {
           return MKMapView(frame: .zero)
       }
-      
+
       func updateUIView(_ uiView: MKMapView, context: Context) {
           uiView.mapType = mapType
           ref.current = uiView
@@ -449,10 +437,10 @@ Now we can manipulate the native view in our SwiftUI views:
   struct Hello: View {
       @State
       var mapType = MKMapType.standard
-      
+
       @StateObject
       var mapViewRef = RefBox<MKMapView>()
-      
+
       var body: some View {
           VStack {
               MapView(mapType: mapType, ref: mapViewRef)
@@ -480,7 +468,7 @@ everywhere, as well as in React.
 
 Context
 -------
-Passing data between the components can be hard, especially when you travel 
+Passing data between the components can be hard, especially when you travel
 through the hierachy. And **Context** to the rescue!
 
 Let's look at an example in React:
@@ -535,11 +523,11 @@ In SwiftUI:
   class UserContext: ObservableObject {
       @Published
       var username: String?
-      
+
       init(username: String?) {
           self.username = username
       }
-      
+
       func logout() {
           self.username = nil
       }
@@ -548,7 +536,7 @@ In SwiftUI:
   struct UserInfo: View {
       @EnvironmentObject
       var userContext: UserContext
-      
+
       var body: some View {
           Group {
               if userContext.username == nil {
@@ -577,7 +565,7 @@ In SwiftUI:
   struct App: View {
       @StateObject
       var userContext = UserContext(username: "cyan")
-      
+
       var body: some View {
           VStack {
               Panel()
@@ -641,7 +629,7 @@ Let's first take a look at how JSX is transpiled to JavaScript. We have this:
     if (!users.length) {
       return <p>No users</p>;
     }
-    
+
     return (
       <div>
         <p>Great!</p>
@@ -677,7 +665,7 @@ Now, let's back to SwiftUI. There is the same example:
 
   struct UserInfo: View {
       let users: [User]
-      
+
       var body: some View {
           Group {
               if users.isEmpty {
@@ -698,7 +686,7 @@ And this is the actual code represented by it:
 
   struct UserInfo: View {
       let users: [User]
-      
+
       var body: some View {
           let v: _ConditionalContent<Text, VStack<TupleView<(Text, Text)>>>
           if users.isEmpty {
